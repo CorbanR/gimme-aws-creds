@@ -55,6 +55,41 @@ brew install gimme-aws-creds
 
 __OR__
 
+Use with nix flake
+```bash
+# flake.nix
+# Use by running `nix develop`
+{
+  description = "Shell example";
+
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.gimme-aws-creds.url = "github:CorbanR/gimme-aws-creds/nix-flake";
+
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+    gimme-aws-creds,
+    ...
+  } @ inputs:
+    flake-utils.lib.eachDefaultSystem
+    (
+      system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        devShells.default = pkgs.mkShell {
+          packages = [pkgs.bash gimme-aws-creds.packages.${system}.default];
+        };
+      }
+    );
+}
+  
+```
+
+
+__OR__
+
 Build the docker image locally:
 
 ```bash
